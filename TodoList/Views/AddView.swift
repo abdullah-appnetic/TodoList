@@ -78,7 +78,7 @@ struct AddView: View {
         ScrollView {
             
             VStack(spacing: 24) {
-                                
+                
                 VStack(spacing: 12) {
                     
                     Image(systemName: selectedIcon)
@@ -119,7 +119,7 @@ struct AddView: View {
                     }
                 }
                 .padding(.top, 15)
-                                
+                
                 VStack(alignment: .leading, spacing: 8) {
                     
                     Text("Task")
@@ -143,7 +143,7 @@ struct AddView: View {
                         )
                     )
                 }
-                                
+                
                 Button {
                     saveButtonPressed()
                 } label: {
@@ -275,10 +275,7 @@ struct IconPickerView: View {
                         Button {
                             
                             withAnimation(
-                                .spring(
-                                    response: 0.3,
-                                    dampingFraction: 0.6
-                                )
+                                .spring()
                             ) {
                                 selectedIcon = icon
                             }

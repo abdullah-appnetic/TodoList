@@ -20,13 +20,8 @@ import SwiftUI
 
 class ListViewModel: ObservableObject {
     
-    @Published var items: [ItemModel] = [] {
-        didSet {
-            saveItems()
-        }
-    }
-    
-    private let itemsKey = "todo_items"
+    @Published var items: [ItemModel] = []
+    @AppStorage("todo_items") private var savedItemsData: Data = Data()
     
     init() {
         getItems()
@@ -34,25 +29,23 @@ class ListViewModel: ObservableObject {
     
     func getItems() {
         
-        guard let savedData = UserDefaults.standard.data(forKey: itemsKey) else {
-            
-            items = [
-                
-            ]
-            
+        // If there is no saved data
+        guard !savedItemsData.isEmpty else {
+            items = []
             return
         }
         
         do {
             let decodedItems = try JSONDecoder().decode(
                 [ItemModel].self,
-                from: savedData
+                from: savedItemsData
             )
             
             items = decodedItems
             
         } catch {
             print("Error decoding items: \(error)")
+            items = []
         }
     }
     
@@ -60,15 +53,18 @@ class ListViewModel: ObservableObject {
         text: String,
         iconName: String
     ) {
+        
         let newItem = ItemModel(
             title: text,
             isCompleted: false,
             iconName: iconName
         )
         
-        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+        withAnimation(.spring()) {
             items.append(newItem)
         }
+        
+        saveItems()
     }
     
     func updateItem(item: ItemModel) {
@@ -77,17 +73,21 @@ class ListViewModel: ObservableObject {
             $0.id == item.id
         }) {
             
-            withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
+            withAnimation(.spring()) {
                 items[index] = item.updateCompletion()
             }
+            
+            saveItems()
         }
     }
     
     func deleteItems(at offsets: IndexSet) {
         
-        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+        withAnimation(.spring()) {
             items.remove(atOffsets: offsets)
         }
+        
+        saveItems()
     }
     
     func moveItem(
@@ -95,39 +95,33 @@ class ListViewModel: ObservableObject {
         to destination: Int
     ) {
         
-        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+        withAnimation(.spring()) {
             items.move(
                 fromOffsets: source,
                 toOffset: destination
             )
         }
+        
+        saveItems()
     }
     
     private func saveItems() {
         
         do {
+            
             let encodedItems = try JSONEncoder().encode(items)
             
-            UserDefaults.standard.set(
-                encodedItems,
-                forKey: itemsKey
-            )
+            savedItemsData = encodedItems
             
         } catch {
+            
             print("Error encoding items: \(error)")
         }
     }
     
     var completedItems: Int {
-        items.filter { $0.isCompleted }.count
-    }
-    
-    var progress: Double {
-        
-        guard !items.isEmpty else {
-            return 0
-        }
-        
-        return Double(completedItems) / Double(items.count)
+        items.filter {
+            $0.isCompleted
+        }.count
     }
 }
