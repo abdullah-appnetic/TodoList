@@ -21,7 +21,7 @@ import SwiftUI
 class ListViewModel: ObservableObject {
     
     @Published var items: [ItemModel] = []
-    @AppStorage("todo_items") private var savedItemsData: Data = Data()
+    @AppStorage("todo_items") var savedData: Data = Data()
     
     init() {
         getItems()
@@ -30,7 +30,7 @@ class ListViewModel: ObservableObject {
     func getItems() {
         
         // If there is no saved data
-        guard !savedItemsData.isEmpty else {
+        guard !savedData.isEmpty else {
             items = []
             return
         }
@@ -38,7 +38,7 @@ class ListViewModel: ObservableObject {
         do {
             let decodedItems = try JSONDecoder().decode(
                 [ItemModel].self,
-                from: savedItemsData
+                from: savedData
             )
             
             items = decodedItems
@@ -105,13 +105,12 @@ class ListViewModel: ObservableObject {
         saveItems()
     }
     
-    private func saveItems() {
-        
+    func saveItems() {
         do {
             
             let encodedItems = try JSONEncoder().encode(items)
             
-            savedItemsData = encodedItems
+            savedData = encodedItems
             
         } catch {
             

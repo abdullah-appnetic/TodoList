@@ -21,18 +21,11 @@ struct ListView: View {
                 .ignoresSafeArea()
             
             VStack(spacing: 0) {
-                
                 headerView
-                
-                
                 if listViewModel.items.isEmpty {
-                    
                     emptyStateView
-                    
                 } else {
-                    
                     List {
-                        
                         ForEach(
                             listViewModel.items
                         ) { item in
@@ -127,22 +120,18 @@ struct ListView: View {
             }
         }
         .sheet(isPresented: $showAddView) {
-            
-            NavigationStack {
-                
+ 
                 AddView()
                     .environmentObject(
                         listViewModel
                     )
-            }
+        
         }
     }
     
     private var headerView: some View {
         
         VStack(spacing: 14) {
-            
-            
             
             VStack(
                 alignment: .leading,
@@ -158,7 +147,7 @@ struct ListView: View {
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
             }
-            
+            .frame(maxWidth: .infinity, alignment: .leading)
             
             
             Divider()
